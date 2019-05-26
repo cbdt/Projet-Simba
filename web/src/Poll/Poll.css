@@ -1,5 +1,5 @@
 :root{
-  --header-height : 80px;
+  --header-height : 180px;
   --participant-width : 230px;
   --cell-width : 65px;
   --cell-height: 40px;  
@@ -113,4 +113,3 @@ ul{
   overflow-y: visible;
 
 }
-

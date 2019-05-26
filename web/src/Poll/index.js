@@ -3,7 +3,9 @@ import { Wizard, Steps, Step } from 'react-albus';
 import Card from '../Card';
 import './Poll.css';
 import axios from 'axios';
-import { conditionalExpression } from '@babel/types';
+import moment from 'moment'
+
+moment.locale('fr');
 
 const baseURL = "http://localhost:7777/api";
 let mockdata = {
@@ -43,6 +45,7 @@ const Informations = ({data,next}) => {
   const [choices, setChoices] = useState([])
 
   const handleVote = () => {
+    console.log(choices)
     console.log("Submit vote")
   }
 
@@ -95,19 +98,19 @@ const Users =({data}) =>{
       <header className="Cell_Poll_Header">
         <div className="Cell_Participants_Header"></div>
         <div className="Cell_Participant_Count">
-          <span>{data.pollUsers.length} participant{data.pollUsers.length<2 ? "":"s"}</span>
+          <span>{/*data.pollUsers.length*/} participant{/*data.pollUsers.length<2 ? "":"s"*/}</span>
         </div>
         <div className="Cell_New_Participant">
           <input type="text" id="newParticipantName" placeholder="Saisissez nom" required="required" maxLength="64"/>
         </div>
       </header>
       <ul className="Cell_Participants">
-        {data.pollUsers.map((User)=>(
+        {/*data.pollUsers.map((User)=>(
           <li className="Cell_Participant" key={User.id}>
             {User.username}
           </li>
         )
-        )}
+        )*/}
       </ul>
     </aside>
   )
@@ -121,7 +124,8 @@ const Choices = ({data, setChoices, choices}) =>{
 
   const handleVote = (e, id) => {
     let checked = e.target.checked
-
+    console.log(checked)
+    console.log(choices)
     if(checked) {
       setChoices([...choices, id])
     } else {
@@ -131,15 +135,18 @@ const Choices = ({data, setChoices, choices}) =>{
         setChoices(newChoices)
       }
     }
+    console.log(choices)
+
   }
   
   return (
     <ul className="Cell_Options">
       {data.pollChoices.map((choice)=>(
-          <li className="Cell_Option">
+          <li className="Cell_Option" key={choice.id}>
             <label className="Cell_Poll_Header">
               <div className="Cell_Option_Name">
-                {choice.start_date} - {choice.end_date}
+                {moment(choice.start_date).format('Do MMMM h:mm')} - {moment(choice.end_date).format('h:mm')}
+                id : {choice.id}
               </div>
               <div className="Cell_Option_Count">
                 <span>{choice.users.length} V</span>
@@ -191,7 +198,6 @@ const setMealPreference = () =>{
 }
 
 
-
 const Poll = (props) => {
   const {id} = props.match.params
   const [data, setData] = useState(false)
@@ -201,9 +207,8 @@ const Poll = (props) => {
     })
   },[])
 
- 
   return (
-    
+    <div className="Container">
     <Wizard>
     <Steps>
       <Step
@@ -224,7 +229,7 @@ const Poll = (props) => {
       />
       </Steps>
     </Wizard>
-    
+    </div>
   )
 }
 
