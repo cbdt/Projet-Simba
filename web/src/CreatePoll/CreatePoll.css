@@ -5,15 +5,20 @@
 
 .CreatePoll_Input {
   width: 100%;
+<<<<<<< HEAD
   margin-bottom: 1.2rem;
 }
 
 .CreatePoll_Input:last-child {
   margin-bottom: 0;
+=======
+  margin: 1rem 0;
+>>>>>>> master
 }
 
 input, textarea {
   font-weight: 400;
+<<<<<<< HEAD
   outline: none;
   color: #102A43;
   width: 100%;
@@ -30,12 +35,34 @@ input:focus, textarea:focus {
 
 .CreatePoll_Input input, textarea {
   padding: 1.5rem;
+=======
+  color: #606f7b;
+  outline: none;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  color: #606f7b;
+  font-size: 17px;
+  background-color: #f1f5f8;
+  border-radius: .25rem;
+  border: 1px solid #f1f5f8;
+}
+
+input:focus, textarea:focus {
+  border-color: #b8c2cc;
+  background-color: #fff;
+  color: #606f7b;
+}
+
+.CreatePoll_Input input {
+  height: 50px;
+>>>>>>> master
 }
 
 .CreatePoll_Input textarea {
   max-width: 100%;
   min-width: 100%;
   min-height: 50px;
+<<<<<<< HEAD
 }
 
 .CreatePoll_Buttons {
@@ -74,4 +101,6 @@ input:focus, textarea:focus {
 
 .rbc-time-view {
   border: none;
+=======
+>>>>>>> master
 }

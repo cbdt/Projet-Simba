@@ -1,7 +1,7 @@
 import React from 'react'
 import './Card.css'
 
-const Card = ({title, subtitle, children, footer, style = {}}) => {
+const Card = ({title, subtitle, children, footer}) => {
   return (
     <div className="Card_Container">
       <div className="Card_Header">
