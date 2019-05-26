@@ -1,55 +1,74 @@
-import React, { useState } from 'react'
+import React, { useState , useEffect } from 'react'
 import { Wizard, Steps, Step } from 'react-albus';
 import Card from '../Card';
-import './Poll.css'
+import './Poll.css';
+import axios from 'axios';
+import { conditionalExpression } from '@babel/types';
 
-let data = {
+const baseURL = "http://localhost:7777/api";
+let mockdata = {
   "id" : 35,
   "title" : "Cinema",
   "location" : "Gaumont Rennes",
   "description" : "Un petit cine voila quoi ...",
   "has_meal" : true,
-  "choices" : ["Avengers","Detective Pikachu","Tchoupi Origins"],
+  "choices" : [
+    {id: 1, start_date: "dsd", end_date: "dsdsd"},
+    {id: 3, start_date: "d", end_date: "dsdsd"},
+    {id: 5, start_date: "Avengers", end_date: "dsdsd"}],
   "users" : ["Kevin","Clement","Daouda","Salome"],
   "votes" :[
       {
+          "id": 5,
           "choice":"Avengers",
           "vote":["Kevin","Clement"]
       },
       {
+          "id": 4,
           "choice":"Detective Pikachu",
           "vote":["Salome","Daouda"]
       },
       {
+          "id": 5,
           "choice":"Tchoupi Origins",
           "vote":["Clement"]
       }
   ]
 }
 
-const Informations = ({next, previous}) => {
+
+
+const Informations = ({data,next}) => {
+
+  const [choices, setChoices] = useState([])
+
+  const handleVote = () => {
+    console.log("Submit vote")
+  }
+
   const footer = (
     <>
       { 
-      <button className="Btn-primary" onClick={next}>Confirmer</button>
+      <button className="Btn-primary" onClick={handleVote}>Confirmer</button>
       }
     </>
   )
+
   return (
-    <Card title="Titre sondage" subtitle="par XXXXXXX • il y a XX heures" footer={footer}>
+    <Card title={data.title} subtitle="par XXXXXXX • il y a XXXXXXXXX heures" footer={footer}>
       <div className="Poll_Form">
-        { (data.location.length !==0) && <p className="Poll_Location">{data.location}</p>}
+        { data.location && <p className="Poll_Location">{data.location}</p>}
         { data.has_meal && 
           <div className="Poll_Has_Meal">
             <p>Cet évènement contient un repas</p>
-            <button className="Btn-primary" title="Bientôt disponible" onClick={setMealPreference}>Indiquer ses préférences alimentaires</button>
+            <button className="Btn-primary" id="Meal_Preferences_Button" title="Bientôt disponible" onClick={setMealPreference}>Indiquer ses préférences alimentaires</button>
           </div>
         }
-        { (data.description.length !==0) && <p className="Poll_Description">{data.description}</p>}
+        { data.description && <p className="Poll_Description">{data.description}</p>}
         
 
         <div className="Poll_Vote_Wrapper">
-          {pollTable()}
+          <PollTable data={data} setChoices={setChoices} choices={choices}/>
         </div>
 
       </div>
@@ -57,57 +76,87 @@ const Informations = ({next, previous}) => {
   )
 }
 
-const pollTable = () => {
+const PollTable = (props) => {
   return (
     <div className="Poll_Vote_Content">
-        {renderUsers()}
-        {renderChoices()}
+        <Users data={props.data}/>
+        <Choices {...props}/>
+
     </div>
-    
   )
 }
 
-const renderUsers =() =>{
+const Users =({data}) =>{
+  if (!data) {
+    return(<p>Loading ...</p>)
+  }
   return (
     <aside>
       <header className="Cell_Poll_Header">
         <div className="Cell_Participants_Header"></div>
         <div className="Cell_Participant_Count">
-          <span>X participants</span>
+          <span>{data.pollUsers.length} participant{data.pollUsers.length<2 ? "":"s"}</span>
         </div>
         <div className="Cell_New_Participant">
           <input type="text" id="newParticipantName" placeholder="Saisissez nom" required="required" maxLength="64"/>
         </div>
       </header>
       <ul className="Cell_Participants">
-        {data.users.map((name)=>(
-          <li className="Cell_Participant" key={name}>
-            {name}
+        {data.pollUsers.map((User)=>(
+          <li className="Cell_Participant" key={User.id}>
+            {User.username}
           </li>
         )
         )}
       </ul>
     </aside>
   )
+  
 }
 
-const renderChoices = () =>{
+const Choices = ({data, setChoices, choices}) =>{
+  if (!data) {
+    return(<p>Loading ...</p>)
+  }
 
+  const handleVote = (e, id) => {
+    let checked = e.target.checked
+
+    if(checked) {
+      setChoices([...choices, id])
+    } else {
+      const index = choices.indexOf(id)
+      if(index !== -1) {
+        let newChoices = choices.splice(index, 1)
+        setChoices(newChoices)
+      }
+    }
+  }
+  
   return (
     <ul className="Cell_Options">
-      
-      {ChoiceEx()}      
-      {ChoiceEx()}
-      {ChoiceEx()}      
-      {ChoiceEx()}
-      {ChoiceEx()}      
-      {ChoiceEx()}
-      {ChoiceEx()}      
-      {ChoiceEx()}
-      {ChoiceEx()}      
-      {ChoiceEx()}
-      {ChoiceEx()}      
-      {ChoiceEx()}
+      {data.pollChoices.map((choice)=>(
+          <li className="Cell_Option">
+            <label className="Cell_Poll_Header">
+              <div className="Cell_Option_Name">
+                {choice.start_date} - {choice.end_date}
+              </div>
+              <div className="Cell_Option_Count">
+                <span>{choice.users.length} V</span>
+              </div>
+              <div className="Cell_Option_New_Participant_Vote">
+                <input type="checkbox" checked={choices.indexOf(choice.id) !== -1} onChange={(e) => handleVote(e, choice.id)}></input>
+              </div>
+            </label>
+            <ul className="Cell_Option_Votes">
+        
+            </ul>
+          </li>
+        )
+      )}
+
+           
+
 
     </ul>
 
@@ -117,25 +166,23 @@ const renderChoices = () =>{
 }
 
 const ChoiceEx = () =>{
-  return(<li className="Cell_Option">
-  <label className="Cell_Poll_Header">
-    <div className="Cell_Option_Name">
-      Nom du choix
-    </div>
-    <div className="Cell_Option_Count">
-      <span>X V</span>
-    </div>
-    <div className="Cell_Option_New_Participant_Vote">
-      <input type="checkbox"></input>
-    </div>
-  </label>
-  <ul className="Cell_Option_Votes">
-    <li className="Cell_Option_Vote_Yes">Yes</li>
-    <li className="Cell_Option_Vote_No">No</li>
-    <li className="Cell_Option_Vote_No">No</li>
-    <li className="Cell_Option_Vote_Yes">Yes</li>
-  </ul>
-</li>)
+  return(
+  <li className="Cell_Option">
+    <label className="Cell_Poll_Header">
+      <div className="Cell_Option_Name">
+        Nom du choix
+      </div>
+      <div className="Cell_Option_Count">
+        <span>X V</span>
+      </div>
+      <div className="Cell_Option_New_Participant_Vote">
+        <input type="checkbox"></input>
+      </div>
+    </label>
+    <ul className="Cell_Option_Votes">
+
+    </ul>
+  </li>)
 }
 
 
@@ -144,17 +191,25 @@ const setMealPreference = () =>{
 }
 
 
-const Poll = () => {
 
+const Poll = (props) => {
+  const {id} = props.match.params
+  const [data, setData] = useState(false)
+  useEffect(()=>{
+    axios.get(`${baseURL}/polls/${id}`).then(res => {
+    setData(res.data)
+    })
+  },[])
 
+ 
   return (
-
+    
     <Wizard>
     <Steps>
       <Step
         id="poll"
-        render={({ next }) => (
-          <Informations next={next}/>
+        render={({next }) => (
+          <Informations data={data} next={next}/>
         )}
       />
       <Step
@@ -162,8 +217,8 @@ const Poll = () => {
         render={({ next, previous }) => (
           <div>
             <h1>Merci d'avoir voté</h1>
-            <button onClick={next}>Next</button>
-            <button onClick={previous}>Previous</button>
+            <button className="Btn-primary" onClick={next}>Revenir au sondage</button>
+            <button className="Btn-primary" onClick={previous}>Revenir à l'acceuil</button>
           </div>
         )}
       />
